@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+    <!-- Styling -->
+    <style>
+        body {
+            font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #941b0c, #d64545);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 50px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: #941b0c;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            outline: none;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #941b0c;
+            box-shadow: 0 0 0 3px rgba(148, 27, 12, 0.2);
+        }
+
+        button {
+            background: #941b0c;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin-left: 10px;
+            margin-top: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.25s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            background: #b91c1c;
+            transform: scale(1.05);
+        }
+
+        #qrcode {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        footer {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: #999;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            let qrcodeInstance;
+
+            $('#generateBtn').click(function() {
+                var text = $('#text').val().trim();
+                $('#qrcode').empty(); // Clear previous QR code
+                $('#downloadBtn').hide(); // Hide download button until new code is made
+
+                if (text) {
+                    qrcodeInstance = new QRCode(document.getElementById("qrcode"), {
+                        text: text,
+                        width: 256,
+                        height: 256,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+
+                    // Wait a moment for QR code to render, then show download button
+                    setTimeout(() => { $('#downloadBtn').fadeIn(200); }, 300);
+                } else {
+                    alert("Please enter text to generate a QR code.");
+                }
+            });
+
+            $('#downloadBtn').click(function() {
+                // Try to get canvas or img element
+                const qrCanvas = $('#qrcode canvas')[0];
+                const qrImg = $('#qrcode img')[0];
+
+                let dataUrl;
+                if (qrCanvas) {
+                    dataUrl = qrCanvas.toDataURL("image/png");
+                } else if (qrImg) {
+                    dataUrl = qrImg.src;
+                } else {
+                    alert("Please generate a QR code first.");
+                    return;
+                }
+
+                // Create a download link
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'roar_qrcode.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ROAR QR Code Generator</h1>
+        <p>Enter any text or URL below to instantly generate a scannable QR code.</p>
+
+        <div>
+            <input type="text" id="text" placeholder="e.g. https://roar.wsu.edu">
+            <button id="generateBtn">Generate</button>
+            <button id="downloadBtn">Download</button>
+        </div>
+
+        <div id="qrcode"></div>
+        <footer>Powered by qrcode.js • Washington State University ROAR</footer>
+    </div>
+    
+</body>
+</html>
